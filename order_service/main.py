@@ -61,8 +61,8 @@ def create_order(order: Order):
         # Update order status based on payment
         new_order.status = payment_status["status"]
         new_order.updated_at = datetime.utcnow()
+
         db.commit()
-        db.close()
 
         # Notify user of payment status
         requests.post("http://notification-service:8001/notify", json={"order_id": order_id, "message": payment_status["message"]})
