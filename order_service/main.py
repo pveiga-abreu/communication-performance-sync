@@ -12,7 +12,7 @@ DATABASE_URL = "postgresql://postgres:postgres@postgres:5432/orders_db"
 # Database setup
 Base = declarative_base()
 engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, expire_on_commit=False)
 
 class OrderModel(Base):
     __tablename__ = "orders"
@@ -30,42 +30,51 @@ app = FastAPI()
 
 class Order(BaseModel):
     customer_id: str
-    items: dict
+    items: list
     total_amount: float
 
 @app.post("/create_order", status_code=201)
 def create_order(order: Order):
     order_id = str(uuid.uuid4())
     db = SessionLocal()
-    new_order = OrderModel(
-        id=order_id,
-        customer_id=order.customer_id,
-        items=str(order.items),
-        total_amount=order.total_amount,
-        status="Created",
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
-    )
-    db.add(new_order)
-    db.commit()
 
-    # Notify user of created order
-    requests.post("http://notification-service:8001/notify", json={"order_id": order_id, "message": "Order created successfully"})
+    try:
+        new_order = OrderModel(
+            id=order_id,
+            customer_id=order.customer_id,
+            items=str(order.items),
+            total_amount=order.total_amount,
+            status="Created",
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
+        )
+        db.add(new_order)
+        db.commit()
 
-    # Process payment
-    response = requests.post("http://payment-service:8002/process_payment", json={"order_id": order_id, "amount": order.total_amount})
-    payment_status = response.json()
+        # Notify user of created order
+        requests.post("http://notification-service:8001/notify", json={"order_id": order_id, "message": "Order created successfully"})
 
-    # Update order status based on payment
-    new_order.status = payment_status["status"]
-    new_order.updated_at = datetime.utcnow()
-    db.commit()
-    db.close()
+        # Process payment
+        response = requests.post("http://payment-service:8002/process_payment", json={"order_id": order_id, "amount": order.total_amount})
+        payment_status = response.json()
 
-    # Notify user of payment status
-    requests.post("http://notification-service:8001/notify", json={"order_id": order_id, "message": payment_status["message"]})
+        # Update order status based on payment
+        new_order.status = payment_status["status"]
+        new_order.updated_at = datetime.utcnow()
+        db.commit()
+        db.close()
 
-    return {"order_id": order_id, "status": new_order.status}
+        # Notify user of payment status
+        requests.post("http://notification-service:8001/notify", json={"order_id": order_id, "message": payment_status["message"]})
+
+        return {"order_id": order_id, "status": new_order.status}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+    finally:
+        db.close()
 
 @app.get("/orders/{order_id}")
 def get_order(order_id: str):
