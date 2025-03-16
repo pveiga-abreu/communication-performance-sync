@@ -54,7 +54,16 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - grafana_data:/var/lib/grafana
+      - ./grafana_data:/var/lib/grafana
+
+  locust:
+    image: locustio/locust
+    container_name: locust-sync
+    ports:
+     - "8089:8089"
+    volumes:
+      - ./locust:/mnt/locust
+    command: -f /mnt/locust/locustfile.py --host=http://order-service:8000
 
 volumes:
   prometheus_data:
@@ -72,6 +81,8 @@ volumes:
       device: ./grafana_data
 
   postgres_data:
+
+  locust:
 
 networks:
   default: 
