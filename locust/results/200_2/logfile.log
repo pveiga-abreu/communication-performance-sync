@@ -1,0 +1,9 @@
+[2025-04-07 22:35:36,378] dev10/INFO/locust.main: Starting Locust 2.33.2
+[2025-04-07 22:35:36,378] dev10/WARNING/locust.main: Python 3.9 support is deprecated and will be removed soon
+[2025-04-07 22:35:36,379] dev10/INFO/locust.main: The --autostart argument is implied by --headless, no need to set both.
+[2025-04-07 22:35:36,380] dev10/INFO/locust.main: Run time limit set to 120 seconds
+[2025-04-07 22:35:36,382] dev10/INFO/locust.runners: Ramping to 200 users at a rate of 10.00 per second
+[2025-04-07 22:35:53,690] dev10/INFO/locust.runners: All users spawned: {"User": 200} (200 total users)
+[2025-04-07 22:37:29,077] dev10/INFO/locust.main: --run-time limit reached, shutting down
+[2025-04-07 22:37:48,543] dev10/INFO/locust.main: writing html report to file: results/200_2/report.html
+[2025-04-07 22:37:48,546] dev10/INFO/locust.main: Shutting down (exit code 0)
