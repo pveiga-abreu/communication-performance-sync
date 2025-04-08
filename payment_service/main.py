@@ -15,8 +15,8 @@ class PaymentRequest(BaseModel):
 
 @app.post("/process_payment")
 def process_payment(payment_request: PaymentRequest):
-    # Allocate a list (~2 MB) for simulating data processing
-    data = [b'x' * 1024 * 1024 for _ in range(2)]
+    # Allocate a list (~1 MB) for simulating data processing
+    data = [b'x' * 1024 * 1024 for _ in range(1)]
     # Simulating a processing time
     sleep(3)
     # Clean memory

@@ -15,8 +15,8 @@ class Notification(BaseModel):
 
 @app.post("/notify")
 def notify(notification: Notification):
-    # Allocate a list (~1 MB) for simulating data processing
-    data = [b'x' * 1024 * 1024 for _ in range(1)]
+    # Allocate a list (~512 KB) for simulating data processing
+    data = [b'x' * 1024 * 512 for _ in range(1)]
     # Simulating a processing time
     sleep(0.5)
     # Clean memory
